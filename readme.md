@@ -5,7 +5,7 @@ It's quite attractive to use amount of data including TCM(中医药, Tradition C
 However, as a beginner of bioinfomatic, I found most of Tradition Medicine databases (such as **herbs**, **TCMSP**, **ETCM**) are not very friendly to us. They don't service a interface for us to download all of their data. Or only give a single dataframe without same columns to combine each other.
 ![You can't get information about the ingredients are from which herbs ](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210823214415.png)
 
-So, I am going to use ==**R**== as my sword for taking this big challenge. Also, I can practice my web crawler skills.
+So, I am going to use **R** as my sword for taking this big challenge. Also, I can practice my web crawler skills.
 
 # 2. Aims of This Project
 In this project, I just want to crawl some main TCM database. 
@@ -78,6 +78,12 @@ If you successfully run RSelenium in R, you will see a browser opened.
 Have a try and enjoy it!
 It's finished by RSelenium remote control!
 ![](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210823224228.png)
+
+## 3.4 Further Step
+Here is a comprehensive tutorial for Rselenium: https://docs.ropensci.org/RSelenium/articles/basics.html
+
+Chinese Version By me:
+https://www.yuque.com/mugpeng/rr/hg7gu8
 
 # 4. Script Introduction
 Each step has its own R script.

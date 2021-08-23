@@ -23,4 +23,7 @@ remDr$open() ## open your chrome browser
 
 # 3. A very beginning test ----
 remDr$navigate("https://cn.bing.com/") # first step
-
+webElem <- remDr$findElement(using = "xpath", '//*[@id="sb_form_q"]')
+webElem$getElementAttribute("name")
+webElem$sendKeysToElement(list("mugpeng yuque")) 
+# enter string into your searching box
