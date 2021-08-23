@@ -1,0 +1,150 @@
+##################################################
+## Project: Rescue the Princess
+## File name: 02-rvest-scrapy.R
+## Date: Sun Aug 22 09:13:26 2021
+## Author: Peng
+## R_Version: R version 4.0.5 (2021-03-31)
+## R_Studio_Version: 1.4.1106
+## Platform Version: macOS Mojave 10.14.6
+##################################################
+rm(list = ls())
+
+# 0.  packages loaded && data preparation ----
+my_packages<- c("data.table", "RColorBrewer", "paletteer",
+                "rvest", "dplyr")
+tmp <- sapply(my_packages, function(x) library(x, character.only = T)); rm(tmp)
+
+# 1. create herbs ID name vector ----
+raw_ID <- 1:7263
+digits_ID <- nchar("000003")
+herbs_ID <- case_when(
+  nchar(raw_ID) %in% 1 ~ paste0(paste(rep(0, digits_ID - 1), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 2 ~ paste0(paste(rep(0, digits_ID - 2), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 3 ~ paste0(paste(rep(0, digits_ID - 3), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 4 ~ paste0(paste(rep(0, digits_ID - 4), collapse = ""), raw_ID)
+)
+
+Herbs_Url <- sprintf('http://herb.ac.cn/Detail/?v=HERB%s&label=Herb', herbs_ID)
+
+# 2. scrapy each herbs data and their parents ID ----
+lapply()
+
+#  ----
+##################################################
+## Project: Rescue the Princess
+## File name: 03-Rselenium-scrapy.R
+## Date: Sun Aug 22 09:33:15 2021
+## Author: Peng
+## R_Version: R version 4.0.5 (2021-03-31)
+## R_Studio_Version: 1.4.1106
+## Platform Version: macOS Mojave 10.14.6
+##################################################
+rm(list = ls())
+
+# 0.  packages loaded && data preparation ----
+my_packages<- c("maftools", "data.table", "RColorBrewer", 
+                "paletteer", "devtools", "Rwebdriver",
+                "RSelenium", "rvest", "dplyr")
+tmp <- sapply(my_packages, function(x) library(x, character.only = T)); rm(tmp)
+
+# install_github("crubba/Rwebdriver")
+
+# 1. create herbs ID name vector ----
+raw_ID <- 1:7263
+digits_ID <- nchar("000003")
+herbs_ID <- case_when(
+  nchar(raw_ID) %in% 1 ~ paste0(paste(rep(0, digits_ID - 1), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 2 ~ paste0(paste(rep(0, digits_ID - 2), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 3 ~ paste0(paste(rep(0, digits_ID - 3), collapse = ""), raw_ID),
+  nchar(raw_ID) %in% 4 ~ paste0(paste(rep(0, digits_ID - 4), collapse = ""), raw_ID)
+)
+
+Herbs_Url <- sprintf('http://herb.ac.cn/Detail/?v=HERB%s&label=Herb', herbs_ID)
+
+# 2. create Rselenium ----
+remDr <- remoteDriver(remoteServerAddr = "localhost" 
+                      , port = 4444
+                      , browserName = "chrome")
+
+remDr$open() #打开浏览器
+
+# 3. scrapy each herbs data and their parents ID ----
+herbs_list <- vector("list", length = length(herbs_ID))
+# i <- 3
+
+for (i in 2249:length(herbs_ID)){
+  ## get and access url
+  my_Herb_ID <- paste0("HERB", herbs_ID[i])
+  herbs_list[[i]]$my_Herb_ID <- my_Herb_ID
+  my_Url <- Herbs_Url[i]
+  herbs_list[[i]]$my_Herb_url <- my_Url
+  remDr$navigate(my_Url)
+  ## get parent ID and page count
+  Sys.sleep(2)
+  webpage <- read_html(remDr$getPageSource()[[1]][1])
+  child_xpath_number <- c('//LI[@class="ant-pagination-total-text"]',
+                          '//MAIN[@class="ant-layout-content"]/DIV[1]/DIV[1]/DIV[4]/DIV[1]/DIV[1]/DIV[1]/DIV[1]/DIV[1]/DIV[1]/UL[1]/LI[1]',
+                          '//*[@id="root"]/section/main/div/div[1]/div[4]/div/div/div/div[1]/div/div/ul/li[1]',
+                          '//*[@id="root"]/section/main/div/div[1]/div[3]/div/div/div/div[1]/div/div/ul/li[1]')
+  for (i1 in child_xpath_number) {
+    child_nodes <- html_nodes(webpage, xpath = i1)
+    child_number_counts <- html_text(child_nodes)
+    if (!is.na(child_number_counts[1])) {break}
+  }
+  if (!is.na(child_number_counts[1])) {
+    child_number_counts <- as.numeric(gsub(" items", "", child_number_counts))
+    child_page_counts <- ceiling(child_number_counts/5)
+  } else {herbs_list$status <- "no"; print(paste0("No data for ", i));next}
+  parent_xpath <- '//*[@id="root"]/section/main/div/div[1]/div[2]/div/div/ul/li[1]/span[1]/span'
+  parent_nodes <- html_nodes(webpage, xpath = parent_xpath)
+  parent_ID <- html_text(parent_nodes)
+  herbs_list[[i]]$my_parent_ID <- parent_ID
+  ## get ingredients table with next page function
+  my_list <- list()
+  for (a in seq(child_page_counts)){
+    xpath_table <- c('//*[@id="root"]/section/main/div/div[1]/div[4]/div/div/div/div[1]/div/div/div/div',
+                     '//*[@id="root"]/section/main/div/div[1]/div[3]/div/div/div/div[1]/div/div/div/div')
+    ## detect if xpath for table is correct
+    for (a1 in xpath_table) {
+      table_nodes <- html_nodes(webpage, xpath = a1)
+      result <- tryCatch({html_table(table_nodes)}, error = function(e){0})
+      if (!is.numeric(result)){
+        tables <- html_table(table_nodes)
+        result <- tryCatch({tables[[1]]}, error = function(e){0})
+        if (is.data.frame(result)) result = 1
+        if (result) break ## break if xpath is ok
+      }
+    }
+    if (result) {
+      tables <- html_table(table_nodes)
+      tables <- tables[[1]]
+      my_list[[a]] <- tables
+      ## next page
+      if(child_page_counts > 1 & a < child_page_counts) {
+        childNextBin_xpath <- '//LI[@class=" ant-pagination-next"]/A[1]'
+        childNextBin <- remDr$findElement(using ='xpath',
+                                          value = childNextBin_xpath)
+        childNextBin$clickElement()
+        ## because taking next page, read again
+        webpage <- read_html(remDr$getPageSource()[[1]][1])
+        Sys.sleep(3)
+      }
+    }
+  }
+  if (result) {
+    child_tables <- do.call("rbind", my_list) # combind all tables
+    herbs_list[[i]]$my_child_table <- child_tables
+    my_status <- nrow(child_tables) 
+  } else {
+    herbs_list[[i]]$my_child_table <- 0
+    my_status <- "no"
+  }
+  ## check scrapy status
+  herbs_list[[i]]$my_status <- if(my_status == child_number_counts) "OK" else "no-OK" 
+  print(paste0("Finished ", i))
+}
+
+job({for (a in 1:10) print(a)})
+
+## check if ID in page in accordance with our herbs ID
+check_vector <- ifelse(i == parent_ID, "yes", "no")
