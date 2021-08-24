@@ -40,7 +40,7 @@ Targets_ID <- case_when(
 Targets_Url <- sprintf('http://herb.ac.cn/Detail/?v=HBTAR%s&label=Target', Targets_ID)
 
 ## empty list with pre-defined length
-my_list <- vector("list", length = length(Targets_ID))
+if(!'my_list' %in% ls()) my_list <- vector("list", length = length(Targets_ID))
 
 ## define each xpaths
 child_xpath_number <- c('//*[@id="root"]/section/main/div/div[1]/div[4]/div/div[3]/div/div[2]/div/div[1]/div/div/ul/li[1]')
@@ -55,10 +55,10 @@ childNextBin_xpath <- c('//MAIN[@class="ant-layout-content"]/DIV[1]/DIV[1]/DIV[4
 # 4. start crawling ----
 source("./Rscript/main-function.R")
 ## for start to end 
-my_scrapy(173,length(Targets_ID), Targets_ID, 
+my_scrapy(1,length(Targets_ID), Targets_ID, 
           Targets_Url, "HBTAR", "Ingredient-Target")
 
 # 5. save temporary file----
-save(Targets_list, file = "./backup/targets/targets_list_4001-4279.Rda")
+# save(Targets_list, file = "./backup/targets/targets_list_4001-4279.Rda")
 
 

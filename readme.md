@@ -3,7 +3,10 @@ Still Under developing..
 # 1. Introduction about project
 It's quite attractive to use amount of data including TCM(中医药, Tradition Chinese Medicine), formulas（药方）, ingredients, targets, and related disease to find active natural compounds or new drugs from our mother land.
 However, as a beginner of bioinfomatic, I found most of Tradition Medicine databases (such as **herbs**, **TCMSP**, **ETCM**) are not very friendly to us. They don't service a interface for us to download all of their data. Or only give a single dataframe without same columns to combine each other.
-![You can't get information about the ingredients are from which herbs ](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210823214415.png)
+
+- You can't get information about the ingredients from which herbs 
+![](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210823214415.png)
+
 
 So, I am going to use **R** as my sword for taking this big challenge. Also, I can practice my web crawler skills.
 
@@ -102,14 +105,37 @@ If there is no bug, the happy result is you only need to run the main script and
 ## 4.2 Output
 All crawl output will be stored in a list:
 ```
-> my_list[[172]]$my_ID[1] "HBTAR000172"$my_url[1] "http://herb.ac.cn/Detail/?v=HBTAR000172&label=Target"$my_page_ID[1] "HBTAR000172"$my_child_table# A tibble: 2 × 3  `Ingredient id` `Ingredient name` `Database sources`              <chr>           <chr>             <chr>                         1 HBIN018385      BGC               SymMap:SMIT07197; TCMSP:MOL00…2 HBIN045073      sucrose           SymMap:SMIT00425; TCMID:20430…$my_status[1] "OK"$my_type[1] "Ingredient-Target"
+> my_list[[172]]
+$my_ID
+[1] "HBTAR000172"
+
+$my_url
+[1] "http://herb.ac.cn/Detail/?v=HBTAR000172&label=Target"
+
+$my_page_ID
+[1] "HBTAR000172"
+
+$my_child_table
+# A tibble: 2 × 3
+  `Ingredient id` `Ingredient name` `Database sources`            
+  <chr>           <chr>             <chr>                         
+1 HBIN018385      BGC               SymMap:SMIT07197; TCMSP:MOL00…
+2 HBIN045073      sucrose           SymMap:SMIT00425; TCMID:20430…
+
+$my_status
+[1] "OK"
+
+$my_type
+[1] "Ingredient-Target"
 ```
 each element represent:
 - my_ID && my_page_ID : ID we designed for crawling and ID from web recording.
 - my_url: Url for this record.
 - my_child_table: tibble of related data.
 - my_status: Check if row of our table is same with row recorded in the web page, and others. IF shows ok, this record is seems to be correctly crawled.
-- my_type: Ingredient-Target, or Ingredient-Disease, or Herb-Ingredient.
+- my_type: Ingredient-Target, or Ingredient-Disease.
+- my_source: herb, ETCM, etc.
+
 
 ## 4.3 file
 ```
@@ -128,6 +154,19 @@ selenium_file/
 ```
 In backup, there are my temporal Rdata file by my web crawler. I will combine each of them into a single data.frame soon.
 And you can use file in selenium_file for setting ur Selenium Server and Chromedriver, and my Chrome version is 92.0.
+
+## 4.4 Database and Their Information 
+- herb(本草图鉴): http://herb.ac.cn/
+A high-throughput experiment- and reference-guided database of traditional Chinese medicine.
+
+- ETCM(The Encyclopedia of Traditional Chinese Medicine): http://www.tcmip.cn/ETCM/index.php/Home
+ETCM includes comprehensive and standardized information for the commonly used herbs and formulas of TCM, as well as their ingredients. To facilitate functional and mechanistic studies of TCM, ETCM provides predicted target genes of TCM ingredients, herbs, and formulas. A systematic analysis function is also developed in ETCM, which allows users to explore the relationships or build networks among TCM herbs, formulas, ingredients, gene targets, and related pathways or diseases. ETCM is free for academic use and the data can be conveniently exported.
+
+- TCMSP(Traditional Chinese Medicine Database and Analysis Platform): https://tcmsp-e.com/
+TCMSP is a unique systems pharmacology platform of Chinese herbal medicines that captures the relationships between drugs, targets and diseases.
+
+- TCMID(Traditional Chinese Medicine Information Database):http://bidd.group/TCMID/
+Linking TCM Data to Human Genomic Profiles
 
 
 # 5. Prospection
