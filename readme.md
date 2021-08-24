@@ -79,15 +79,59 @@ Have a try and enjoy it!
 It's finished by RSelenium remote control!
 ![](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210823224228.png)
 
-## 3.4 Further Step
+## 3.4 Further Step for Learning
 Here is a comprehensive tutorial for Rselenium: https://docs.ropensci.org/RSelenium/articles/basics.html
 
 Chinese Version By me:
 https://www.yuque.com/mugpeng/rr/hg7gu8
 
 # 4. Script Introduction
+## 4.1 Code
 Each step has its own R script.
 
+If you successfully run **01-preparation.R**, it will be easy for you.
+
+![](https://cdn.jsdelivr.net/gh/mugpeng/my-gallery-01/picgo_image/20210824112537.png)
+
+I split my project code into two part:
+- main script, each represent a specific work.
+- Rscript for sourcing, which means they are mainly pre-built functions and only directly used from main script. Including related-function(small function) and main-function(big one).
+
+If there is no bug, the happy result is you only need to run the main script and just wait for your output.
+
+## 4.2 Output
+All crawl output will be stored in a list:
+```
+> my_list[[172]]$my_ID[1] "HBTAR000172"$my_url[1] "http://herb.ac.cn/Detail/?v=HBTAR000172&label=Target"$my_page_ID[1] "HBTAR000172"$my_child_table# A tibble: 2 × 3  `Ingredient id` `Ingredient name` `Database sources`              <chr>           <chr>             <chr>                         1 HBIN018385      BGC               SymMap:SMIT07197; TCMSP:MOL00…2 HBIN045073      sucrose           SymMap:SMIT00425; TCMID:20430…$my_status[1] "OK"$my_type[1] "Ingredient-Target"
+```
+each element represent:
+- my_ID && my_page_ID : ID we designed for crawling and ID from web recording.
+- my_url: Url for this record.
+- my_child_table: tibble of related data.
+- my_status: Check if row of our table is same with row recorded in the web page, and others. IF shows ok, this record is seems to be correctly crawled.
+- my_type: Ingredient-Target, or Ingredient-Disease, or Herb-Ingredient.
+
+## 4.3 file
+```
+$ tree -L 1 backup/; tree -L 1 selenium_file/
+backup/
+├── disease
+├── herbs
+└── targets
+
+3 directories, 0 files
+selenium_file/
+├── LATEST_RELEASE_92
+├── chromedriver
+├── chromedriver.exe
+└── selenium-server-standalone-3.141.59.jar
+```
+In backup, there are my temporal Rdata file by my web crawler. I will combine each of them into a single data.frame soon.
+And you can use file in selenium_file for setting ur Selenium Server and Chromedriver, and my Chrome version is 92.0.
+
+
 # 5. Prospection
-I will develop a R package for storing, sharing, achieving, visualizing TCM database data.
+After crawling herbs, I will re-crawl the wrong data which doesn't recorded as "OK". Besides, I will clean the data and reformat it into a new tibble/data.frame format data with my special barcode. If it possible, I will crawl more database to enhance the reliability and content of my package/database.
+
+Furthermore, I will develop a R package for storing, sharing, achieving, visualizing TCM database data.
 
